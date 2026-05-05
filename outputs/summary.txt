@@ -1,0 +1,8 @@
+Tig images: 20
+Buster images: 20
+Total valid encoded images: 40
+Train size: 30
+Validation size: 10
+Validation accuracy: 1.0000
+PCA variance explained: [0.15746677 0.11633863]
+Number of mistakes: 0

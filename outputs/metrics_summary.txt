@@ -1,0 +1,7 @@
+Validation accuracy: 1.0000
+CV accuracies: [1.0, 1.0, 1.0, 1.0, 0.875]
+Mean CV accuracy: 0.9750
+
+ class  precision  recall  f1  support
+   tig        1.0     1.0 1.0        5
+buster        1.0     1.0 1.0        5
