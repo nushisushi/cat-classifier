@@ -83,11 +83,15 @@ Large model checkpoint files are not included in this repository. If using the S
 
 ## References
 
+Kirillov, A., Mintun, E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S., Berg, A. C., Lo, W.-Y., Dollár, P., & Girshick, R. (2023). Segment Anything. *Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)*, 4015–4026.
+
 McAlister, K. (2026). DATASCI 447: Statistical Machine Learning II course lecture materials. Emory University.
 
 Murphy, K. P. (2023). *Probabilistic Machine Learning: Advanced Topics*. MIT Press.
 
 Prince, S. J. D. (2023). *Understanding Deep Learning*. MIT Press.
+
+Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., Krueger, G., & Sutskever, I. (2021). Learning transferable visual models from natural language supervision. *Proceedings of the 38th International Conference on Machine Learning*, *139*, 8748–8763.
 
 ## Author
 

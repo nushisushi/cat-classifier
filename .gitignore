@@ -1,4 +1,7 @@
-*_files
+*_files/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
 *.pth
 *.pt
 *.ckpt
