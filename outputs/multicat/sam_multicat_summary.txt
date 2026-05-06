@@ -9,6 +9,9 @@ Crop classifier: Logistic regression
 Mask generator: Segment Anything Model, ViT-B
 Post-processing: non-max suppression on SAM masks and classified crop boxes
 
+Interpretation note:
+This extension is qualitative rather than a formal detection benchmark. The project does not include hand-labeled bounding boxes, so the outputs are inspected visually rather than scored with object-detection metrics.
+
 Example: example1
 Image: both1.jpg
 Raw SAM masks: 12
@@ -19,13 +22,13 @@ Final detections: 2
 Predictions: buster (1.000), tig (0.996)
 Saved output: outputs\multicat\both1_nms_labeled.png
 
-Example: latest_manual_or_random_example
-Image: both8.jpg
-Raw SAM masks: 21
-SAM masks after NMS: 19
-Candidate crops: 19
-Raw classified results: 19
+Example: example2
+Image: both10.jpg
+Raw SAM masks: 29
+SAM masks after NMS: 27
+Candidate crops: 27
+Raw classified results: 27
 Final detections: 2
-Predictions: tig (0.995), buster (0.962)
-Saved output: see outputs/multicat/
+Predictions: tig (0.996), buster (0.873)
+Saved output: outputs\multicat\both10_nms_labeled.png
 

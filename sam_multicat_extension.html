@@ -107,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup-and-imports" class="level2">
 <h2 class="anchored" data-anchor-id="setup-and-imports">1. Setup and Imports</h2>
 <p>This section loads the required packages, sets up the compute device, and imports the Segment Anything Model tools used for candidate mask generation.</p>
-<div id="cdd7f926" class="cell" data-execution_count="1">
+<div id="cdd7f926" class="cell" data-execution_count="26">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
@@ -133,7 +133,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="load-segment-anything-model" class="level2">
 <h2 class="anchored" data-anchor-id="load-segment-anything-model">2. Load Segment Anything Model</h2>
 <p>This section loads the SAM ViT-B checkpoint. If the checkpoint file is not already present locally, the notebook downloads it automatically. The notebook attempts to use CUDA when available, but falls back to CPU if GPU memory is unavailable or unstable.</p>
-<div id="19942bc4" class="cell" data-execution_count="2">
+<div id="19942bc4" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sam_checkpoint <span class="op">=</span> <span class="st">"sam_vit_b_01ec64.pth"</span></span>
@@ -199,15 +199,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"SAM device:"</span>, sam_device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>CUDA available: NVIDIA GeForce RTX 5050 Laptop GPU
-GPU memory free/total: 6.81 GB / 7.96 GB
-SAM device: cuda</code></pre>
+GPU memory free/total: 0.00 GB / 7.96 GB
+Free GPU memory is below 3.0 GB. Using CPU instead.
+SAM device: cpu</code></pre>
 </div>
 </div>
 </section>
 <section id="define-paths-and-utility-functions" class="level2">
 <h2 class="anchored" data-anchor-id="define-paths-and-utility-functions">3. Define Paths and Utility Functions</h2>
 <p>This section defines the project folders, output directory, image extensions, random seed, and helper function for loading image paths.</p>
-<div id="ca653336" class="cell" data-execution_count="3">
+<div id="ca653336" class="cell" data-execution_count="28">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>DATA_DIR <span class="op">=</span> Path(<span class="st">"data/raw"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>BOTH_DIR <span class="op">=</span> DATA_DIR <span class="op">/</span> <span class="st">"both"</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>OUTPUT_DIR <span class="op">=</span> Path(<span class="st">"outputs/multicat"</span>)</span>
@@ -231,7 +232,7 @@ SAM device: cuda</code></pre>
 <section id="rebuild-crop-classifier" class="level2">
 <h2 class="anchored" data-anchor-id="rebuild-crop-classifier">4. Rebuild Crop Classifier</h2>
 <p>The baseline notebook uses CLIP embeddings for whole-image classification. This extension uses a ResNet18 feature extractor for cropped candidate regions because the SAM pipeline produces smaller object crops rather than full images. A logistic regression classifier is trained on solo Tig and Buster images, then applied to crops extracted from both-cat images.</p>
-<div id="9c76eb26" class="cell" data-execution_count="4">
+<div id="9c76eb26" class="cell" data-execution_count="29">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tig_paths <span class="op">=</span> get_image_paths(DATA_DIR <span class="op">/</span> <span class="st">"tig"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>buster_paths <span class="op">=</span> get_image_paths(DATA_DIR <span class="op">/</span> <span class="st">"buster"</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -306,7 +307,7 @@ Buster images: 30</code></pre>
 <section id="load-both-cat-images" class="level2">
 <h2 class="anchored" data-anchor-id="load-both-cat-images">5. Load Both-Cat Images</h2>
 <p>This section loads images from <code>data/raw/both</code>, which contain both Tig and Buster in the same scene. Natural sorting keeps filenames such as <code>both2.jpg</code> before <code>both10.jpg</code>.</p>
-<div id="bf99bd65" class="cell" data-execution_count="5">
+<div id="bf99bd65" class="cell" data-execution_count="30">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> natural_key(p):</span>
@@ -336,7 +337,7 @@ Buster images: 30</code></pre>
 <section id="convert-sam-masks-into-candidate-crops" class="level2">
 <h2 class="anchored" data-anchor-id="convert-sam-masks-into-candidate-crops">6. Convert SAM Masks into Candidate Crops</h2>
 <p>SAM returns segmentation masks rather than directly returning classifier-ready image crops. These helper functions convert masks into bounding boxes and extract candidate crop regions while filtering out very small regions or regions that cover most of the image.</p>
-<div id="ad410771" class="cell" data-execution_count="6">
+<div id="ad410771" class="cell" data-execution_count="31">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mask_to_box(mask):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ys, xs <span class="op">=</span> np.where(mask)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(xs) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> <span class="bu">len</span>(ys) <span class="op">==</span> <span class="dv">0</span>:</span>
@@ -376,7 +377,7 @@ Buster images: 30</code></pre>
 <section id="non-max-suppression" class="level2">
 <h2 class="anchored" data-anchor-id="non-max-suppression">7. Non-Max Suppression</h2>
 <p>SAM often generates many overlapping masks for the same object or nearby object parts. Non-max suppression reduces this redundancy by sorting candidate masks by quality score and removing lower-scoring masks whose bounding boxes overlap too much with a mask already selected.</p>
-<div id="eb20423b" class="cell" data-execution_count="7">
+<div id="eb20423b" class="cell" data-execution_count="32">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> box_iou(box_a, box_b):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Compute IoU between two boxes in (x1, y1, x2, y2) format.</span></span>
@@ -533,7 +534,7 @@ Buster images: 30</code></pre>
 <section id="classify-candidate-crops" class="level2">
 <h2 class="anchored" data-anchor-id="classify-candidate-crops">8. Classify Candidate Crops</h2>
 <p>Each selected crop is passed through the ResNet18 feature extractor and then classified with logistic regression. The classifier returns the predicted cat label and confidence for each candidate crop.</p>
-<div id="46caaeda" class="cell" data-execution_count="8">
+<div id="46caaeda" class="cell" data-execution_count="33">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classify_candidate_crops(crops, clf):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(crops) <span class="op">==</span> <span class="dv">0</span>:</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> []</span>
@@ -566,7 +567,7 @@ Buster images: 30</code></pre>
 <section id="detection-selection-helpers" class="level2">
 <h2 class="anchored" data-anchor-id="detection-selection-helpers">9. Detection Selection Helpers</h2>
 <p>These helper functions choose cleaner detections by preferring confident boxes while penalizing very large or edge-clipped boxes. This is useful for difficult multi-cat examples where the highest-confidence crop is not always the most interpretable crop.</p>
-<div id="2224953a" class="cell" data-execution_count="9">
+<div id="2224953a" class="cell" data-execution_count="34">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> box_area_fraction(box, image_shape):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Compute the fraction of the full image covered by a detection box.</span></span>
@@ -676,7 +677,7 @@ Buster images: 30</code></pre>
 <section id="full-multi-cat-pipeline" class="level2">
 <h2 class="anchored" data-anchor-id="full-multi-cat-pipeline">10. Full Multi-Cat Pipeline</h2>
 <p>This function combines the full workflow for one both-cat image: SAM mask generation, mask-level NMS, crop extraction, crop classification, classification-level NMS, plotting, and saving the labeled output image.</p>
-<div id="805a0fd8" class="cell" data-execution_count="10">
+<div id="805a0fd8" class="cell" data-execution_count="35">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_multicat_example(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    image_path,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    output_name,</span>
@@ -780,7 +781,7 @@ Buster images: 30</code></pre>
 <span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>        <span class="st">"save_path"</span>: save_path</span>
 <span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="c49dc246" class="cell" data-execution_count="11">
+<div id="c49dc246" class="cell" data-execution_count="36">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>both_paths <span class="op">=</span> <span class="bu">sorted</span>(get_image_paths(BOTH_DIR), key<span class="op">=</span>natural_key)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Both-cat images:"</span>, <span class="bu">len</span>(both_paths))</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -805,7 +806,7 @@ Candidate crops after mask filtering: 11
 Raw classified crop results: 11
 Final detections after classification NMS: 2
 Final predictions:
-buster 1.0 (np.int64(2047), np.int64(185), np.int64(3999), np.int64(1930))
+buster 1.0 (np.int64(2047), np.int64(185), np.int64(3999), np.int64(1931))
 tig 0.996 (np.int64(1225), np.int64(691), np.int64(2101), np.int64(1409))</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -823,7 +824,7 @@ tig 0.996 (np.int64(1225), np.int64(691), np.int64(2101), np.int64(1409))</code>
 <section id="second-successful-multi-cat-example" class="level2">
 <h2 class="anchored" data-anchor-id="second-successful-multi-cat-example">11. Second Successful Multi-Cat Example</h2>
 <p>This example runs the same SAM + NMS pipeline on a second both-cat image. I use a fixed example rather than searching randomly across many images so the notebook stays reproducible and avoids repeatedly running SAM, which can be slow and memory-intensive.</p>
-<div id="bcbf9f8e" class="cell" data-execution_count="24">
+<div id="bcbf9f8e" class="cell" data-execution_count="37">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>image_path <span class="op">=</span> BOTH_DIR <span class="op">/</span> <span class="st">"both10.jpg"</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Using image:"</span>, image_path)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -907,11 +908,11 @@ tig 0.996 (np.int64(1225), np.int64(691), np.int64(2101), np.int64(1409))</code>
 <span id="cb17-81"><a href="#cb17-81" aria-hidden="true" tabindex="-1"></a>        bbox<span class="op">=</span><span class="bu">dict</span>(facecolor<span class="op">=</span><span class="st">"black"</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, pad<span class="op">=</span><span class="dv">2</span>)</span>
 <span id="cb17-82"><a href="#cb17-82" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb17-83"><a href="#cb17-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Example 2: SAM + NMS detections for both7.jpg"</span>)</span>
+<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Example 2: SAM + NMS detections for both10.jpg"</span>)</span>
 <span id="cb17-85"><a href="#cb17-85" aria-hidden="true" tabindex="-1"></a>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb17-86"><a href="#cb17-86" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb17-87"><a href="#cb17-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a>save_path <span class="op">=</span> OUTPUT_DIR <span class="op">/</span> <span class="st">"both7_nms_labeled.png"</span></span>
+<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a>save_path <span class="op">=</span> OUTPUT_DIR <span class="op">/</span> <span class="st">"both10_nms_labeled.png"</span></span>
 <span id="cb17-89"><a href="#cb17-89" aria-hidden="true" tabindex="-1"></a>plt.savefig(save_path, dpi<span class="op">=</span><span class="dv">200</span>, bbox_inches<span class="op">=</span><span class="st">"tight"</span>)</span>
 <span id="cb17-90"><a href="#cb17-90" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
 <span id="cb17-91"><a href="#cb17-91" aria-hidden="true" tabindex="-1"></a></span>
@@ -945,7 +946,7 @@ buster 0.873 (np.int64(198), np.int64(1062), np.int64(846), np.int64(1377))</cod
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Saved to: outputs\multicat\both7_nms_labeled.png</code></pre>
+<pre><code>Saved to: outputs\multicat\both10_nms_labeled.png</code></pre>
 </div>
 </div>
 </section>
@@ -953,7 +954,7 @@ buster 0.873 (np.int64(198), np.int64(1062), np.int64(846), np.int64(1377))</cod
 <h2 class="anchored" data-anchor-id="additional-curated-random-multi-cat-example">12. Additional Curated-Random Multi-Cat Example</h2>
 <p>This section runs the SAM + NMS pipeline on one additional both-cat image chosen reproducibly from a small curated set of usable examples. The image is selected with a fixed random seed, so the notebook remains reproducible while still showing the pipeline on a third multi-cat scene.</p>
 <p>To avoid repeatedly running SAM across many high-resolution images, this section chooses one candidate image and runs mask generation only once. The output is interpreted qualitatively because the project does not include hand-labeled bounding boxes or formal object-detection metrics. The goal is to show how the pipeline behaves on another realistic both-cat image, not to claim a fully benchmarked detector.</p>
-<div id="6571ec1d" class="cell" data-execution_count="25">
+<div id="6571ec1d" class="cell" data-execution_count="38">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Additional curated-random multi-cat example.</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This chooses one image from a small curated set of usable both-cat examples,</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># then runs SAM only once to avoid repeated memory-heavy mask generation.</span></span>
@@ -1090,15 +1091,15 @@ buster 0.873 (np.int64(198), np.int64(1062), np.int64(846), np.int64(1377))</cod
 <span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-135"><a href="#cb20-135" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved to:"</span>, save_path)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Using curated-random additional image: data\raw\both\both2.jpg
-Raw SAM masks: 15
-SAM masks after NMS: 8
-Candidate crops after mask filtering: 8
-Raw classified crop results: 8
-Filtered classified results after NMS: 8
+<pre><code>Using curated-random additional image: data\raw\both\both6.jpg
+Raw SAM masks: 21
+SAM masks after NMS: 14
+Candidate crops after mask filtering: 14
+Raw classified crop results: 14
+Filtered classified results after NMS: 13
 Best results to plot:
-tig 0.98 (np.int64(0), np.int64(1610), np.int64(391), np.int64(2251))
-buster 0.96 (np.int64(2757), np.int64(0), np.int64(3999), np.int64(690))</code></pre>
+tig 0.995 (np.int64(1299), np.int64(1172), np.int64(1966), np.int64(1689))
+buster 0.994 (np.int64(1835), np.int64(0), np.int64(3371), np.int64(698))</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1108,14 +1109,14 @@ buster 0.96 (np.int64(2757), np.int64(0), np.int64(3999), np.int64(690))</code><
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Saved to: outputs\multicat\both2_curated_random_nms_labeled.png</code></pre>
+<pre><code>Saved to: outputs\multicat\both6_curated_random_nms_labeled.png</code></pre>
 </div>
 </div>
 </section>
 <section id="save-sam-extension-summary" class="level2">
 <h2 class="anchored" data-anchor-id="save-sam-extension-summary">13. Save SAM Extension Summary</h2>
 <p>This final section saves a short text summary of the SAM multi-cat extension. Unlike the baseline classifier, this extension does not have hand-labeled bounding boxes, so the output is not a formal accuracy report. Instead, the summary records the number of raw SAM masks, masks after non-max suppression, candidate crops, final detections, and predicted labels for the example images.</p>
-<div id="1c829d31" class="cell">
+<div id="1c829d31" class="cell" data-execution_count="39">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save a lightweight summary of the SAM multi-cat extension results.</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>summary_path <span class="op">=</span> OUTPUT_DIR <span class="op">/</span> <span class="st">"sam_multicat_summary.txt"</span></span>
